@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Test</title>
+    <style>
+        #video-container {
+            margin: 0 auto;
+            text-align: center;
+            display: none; /* Hide the video initially */
+        }
+        video {
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+            border: 2px solid #333;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div id="video-container">
+    <video id="video" autoplay></video>
+</div>
+<button id="startButton" onclick="startVideo()">Start Webcam</button>
+<button id="stopButton" onclick="stopVideo()" disabled>Stop Webcam</button>
+
+<script>
+    let videoStream;
+
+    function startVideo() {
+        const video = document.getElementById('video');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                videoStream = stream;
+                video.srcObject = stream;
+                startButton.disabled = true;
+                stopButton.disabled = false;
+                // Update video dimensions based on webcam specs
+                video.addEventListener('loadedmetadata', () => {
+                    video.width = video.videoWidth;
+                    video.height = video.videoHeight;
+                    document.getElementById('video-container').style.display = 'block'; // Show the video once loaded
+                });
+            })
+            .catch(err => {
+                console.error('Error accessing the webcam:', err);
+            });
+    }
+
+    function stopVideo() {
+        const video = document.getElementById('video');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+            video.srcObject = null;
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            document.getElementById('video-container').style.display = 'none'; // Hide the video when stopped
+        }
+    }
+</script>
+</body>
+</html>
